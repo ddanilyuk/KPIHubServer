@@ -12,7 +12,7 @@ public struct Lesson: Equatable {
     // MARK: - Position
 
     public enum Position: Int, Codable, CaseIterable, Equatable {
-        case first
+        case first = 1
         case second
         case third
         case fourth
@@ -23,7 +23,7 @@ public struct Lesson: Equatable {
     // MARK: - Day
 
     public enum Day: Int, Codable, CaseIterable, Equatable {
-        case monday
+        case monday = 1
         case tuesday
         case wednesday
         case thursday
@@ -33,8 +33,8 @@ public struct Lesson: Equatable {
 
     // MARK: - Week
 
-    public enum Week: Codable, Equatable {
-        case first
+    public enum Week: Int, Codable, Equatable {
+        case first = 1
         case second
     }
 
