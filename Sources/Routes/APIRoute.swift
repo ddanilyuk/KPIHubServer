@@ -10,11 +10,11 @@ import Parsing
 import URLRouting
 
 
-public struct GroupSearch: Equatable {
-    public let name: String
+public struct GroupQuery: Equatable {
+    public let groupName: String
 
-    public init(name: String = "") {
-        self.name = name
+    public init(groupName: String = "") {
+        self.groupName = groupName
     }
 }
 
@@ -35,16 +35,16 @@ public enum GroupRoute: Equatable {
 
 public enum GroupsRoute: Equatable {
     case all
-    case search(GroupSearch = .init())
+    case search(GroupQuery = .init())
 }
 
-public let groupParser = OneOf {
+public let groupRouter = OneOf {
     Route(.case(GroupRoute.lessons))
 }
 
 public let groupsRouter = OneOf {
     Route(.case(GroupsRoute.search)) {
-        Parse(.memberwise(GroupSearch.init)) {
+        Parse(.memberwise(GroupQuery.init)) {
             Query {
                 Field("name", default: "")
             }
@@ -61,7 +61,7 @@ public let apiRouter = OneOf {
     Route(.case(APIRoute.group)) {
         Path { "group" }
         Path { UUID.parser() }
-        groupParser
+        groupRouter
     }
 }
 
@@ -72,16 +72,3 @@ public let router = OneOf {
     }
     Route(.case(SiteRoute.home))
 }
-
-//public struct LessonsQuery: Equatable {
-//
-//    public var groupName: String = ""
-//
-//    public init(groupName: String = "") {
-//        self.groupName = groupName
-//    }
-//}
-//
-//public enum LessonsRoute: Equatable {
-//    case lessonGroups
-//}
