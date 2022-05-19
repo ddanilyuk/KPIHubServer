@@ -154,12 +154,30 @@
       }
     },
     {
+      "identity" : "swift-url-routing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-url-routing",
+      "state" : {
+        "revision" : "53f56e552b3932d5c11252cb6669a059e9e9e69a",
+        "version" : "0.1.0"
+      }
+    },
+    {
       "identity" : "vapor",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
         "revision" : "21dde333cac46d99c3f25bc5fe2d9e5ea708cb7b",
         "version" : "4.59.1"
+      }
+    },
+    {
+      "identity" : "vapor-routing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/vapor-routing",
+      "state" : {
+        "revision" : "2ef446c968006beca4bb0fa7b106d759e662ffca",
+        "version" : "0.1.0"
       }
     },
     {

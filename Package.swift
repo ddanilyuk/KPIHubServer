@@ -19,13 +19,22 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing", revision: "0.9.2"),
+        .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.1.0"),
+        .package(url: "https://github.com/pointfreeco/vapor-routing", from: "0.1.0"),
 //        .package(url: "https://github.com/google/swift-benchmark", from: "0.1.1"),
     ],
     targets: [
         .target(
+            name: "Routes",
+            dependencies: [
+                .product(name: "URLRouting", package: "swift-url-routing")
+            ]
+        ),
+        .target(
             name: "App",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
+                .product(name: "VaporRouting", package: "vapor-routing"),
                 .target(name: "Routes"),
                 .target(name: "RozkladParser"),
             ],
@@ -36,7 +45,6 @@ let package = Package(
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ]
         ),
-        .target(name: "Routes"),
         .target(
             name: "RozkladParser",
             dependencies: [
