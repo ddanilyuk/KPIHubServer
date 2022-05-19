@@ -10,11 +10,16 @@ let package = Package(
         .library(
             name: "Routes",
             targets: ["Routes"]
+        ),
+        .library(
+            name: "RozkladParser",
+            targets: ["RozkladParser"]
         )
     ],
     dependencies: [
-        // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-parsing", revision: "0.9.2"),
+//        .package(url: "https://github.com/google/swift-benchmark", from: "0.1.1"),
     ],
     targets: [
         .target(
@@ -22,6 +27,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
                 .target(name: "Routes"),
+                .target(name: "RozkladParser"),
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
@@ -31,10 +37,30 @@ let package = Package(
             ]
         ),
         .target(name: "Routes"),
-        .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
-        .testTarget(name: "AppTests", dependencies: [
-            .target(name: "App"),
-            .product(name: "XCTVapor", package: "vapor"),
-        ])
+        .target(
+            name: "RozkladParser",
+            dependencies: [
+                .product(name: "Parsing", package: "swift-parsing")
+            ]
+        ),
+        .executableTarget(
+            name: "Run",
+            dependencies: [
+                .target(name: "App")
+            ]
+        ),
+        .testTarget(
+            name: "AppTests",
+            dependencies: [
+                .target(name: "App"),
+                .product(name: "XCTVapor", package: "vapor"),
+            ]
+        ),
+        .testTarget(
+            name: "RozkladParserTests",
+            dependencies: [
+                .target(name: "RozkladParser"),
+            ]
+        )
     ]
 )
