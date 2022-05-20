@@ -43,14 +43,16 @@ public let groupRouter = OneOf {
 }
 
 public let groupsRouter = OneOf {
+    Route(.case(GroupsRoute.all)) {
+        Path { "all" }
+    }
     Route(.case(GroupsRoute.search)) {
         Parse(.memberwise(GroupQuery.init)) {
             Query {
-                Field("name", default: "")
+                Field("name")
             }
         }
     }
-    Route(.case(GroupsRoute.all))
 }
 
 public let apiRouter = OneOf {

@@ -215,3 +215,45 @@ public struct RozkladParser: Parser {
     }
 
 }
+
+
+public struct GroupIdParser: Parser {
+
+    public let groupName: String
+
+    // MARK: - Lifecycle
+
+    public init(groupName: String) {
+        self.groupName = groupName
+    }
+
+    public func parse(_ input: inout String) throws -> [(groupId: String, groupName: String)] {
+
+        let singleIdParser = Parse {
+            Parse {
+                Skip { PrefixThrough("ViewSchedule.aspx?g=") }
+                PrefixUpTo("\"").map { String($0) }
+            }
+            Parse {
+                "\">"
+                PrefixUpTo("<").map { String($0) }
+            }
+            .replaceError(with: groupName)
+        }
+
+        let multipleIdParser = Parse {
+            singleIdParser
+            singleIdParser
+        }.map { [$0, $1] }
+
+        let parser = Parse {
+            OneOf {
+                multipleIdParser
+                singleIdParser.map { [$0] }
+            }
+            Skip { Rest() }
+        }
+        return try parser.parse(input)
+    }
+
+}

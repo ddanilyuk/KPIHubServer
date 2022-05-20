@@ -15,6 +15,26 @@ struct LessonResponse: Content {
     let lessons: [Lesson]
 }
 
+struct AllGroupsResponse: Content {
+    var d: [String]?
+}
+
+struct GroupsResponse {
+    let numberOfGroups: Int
+    let groups: [Group]
+}
+extension GroupsResponse: Content {
+
+}
+
+struct Group {
+    let id: String
+    let name: String
+}
+extension Group: Content {
+
+}
+
 func siteHandler(
     request: Request,
     route: SiteRoute
@@ -52,13 +72,49 @@ func apiHandler(
     }
 }
 
+public struct AllGroupQuery: Content {
+
+
+    public var prefixText: String
+    public var count: Int
+
+    public init(prefixText: String, count: Int) {
+        self.prefixText = prefixText
+        self.count = count
+    }
+
+}
+
 func groupsHandler(
     request: Request,
     route: GroupsRoute
 ) async throws -> AsyncResponseEncodable {
     switch route {
     case .all:
-        return "\(route)"
+        let controller = GroupsController()
+        return try await controller.parseAllGroups(request: request)
+//        let ukrAlp: [String] = [
+//            "а", "б", "в", "г", "д", "е", "є", "ж", "з", "и", "і",
+//            "ї", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
+//            "у", "ф", "ч", "ц", "ч", "ш", "щ", "ю", "я", "ь"
+//        ]
+//
+//        let jsons: [AllGroupsResponse] = try await ukrAlp.asyncMap { alp -> AllGroupsResponse in
+//            let response: ClientResponse = try await request.client.post(
+//                "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx/GetGroups",
+//                beforeSend: { clientRequest in
+//                    let content = AllGroupQuery(prefixText: alp, count: 100)
+//                    try clientRequest.content.encode(content)
+//                }
+//            )
+//            return try response.content.decode(AllGroupsResponse.self)
+//        }
+//        request.logger.debug("\(jsons)")
+//
+//        let result = jsons.reduce(into: []) { partialResult, response in
+//            partialResult.append(contentsOf: response.d ?? [])
+//        }
+//        return result
 
     case let .search(groupQuery):
         return "\(route)"
@@ -73,5 +129,19 @@ func groupHandler(
     switch route {
     case .lessons:
         return "\(route)"
+    }
+}
+
+extension Sequence {
+    func asyncMap<T>(
+        _ transform: (Element) async throws -> T
+    ) async rethrows -> [T] {
+        var values = [T]()
+
+        for element in self {
+            try await values.append(transform(element))
+        }
+
+        return values
     }
 }
