@@ -64,6 +64,15 @@
       }
     },
     {
+      "identity" : "niocronscheduler",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MihaelIsaev/NIOCronScheduler.git",
+      "state" : {
+        "revision" : "c33c8af4a5836dc37ca675927f2fd030dbf8374e",
+        "version" : "2.0.2"
+      }
+    },
+    {
       "identity" : "postgres-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
@@ -97,6 +106,15 @@
       "state" : {
         "revision" : "89b0a0a5f110e77272fb5a775064a31bfc1f155c",
         "version" : "3.18.0"
+      }
+    },
+    {
+      "identity" : "swifcron",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MihaelIsaev/SwifCron.git",
+      "state" : {
+        "revision" : "effe20321342705e66894d86720c5882e2f4095e",
+        "version" : "1.3.1"
       }
     },
     {
@@ -232,6 +250,15 @@
       "state" : {
         "revision" : "2ef446c968006beca4bb0fa7b106d759e662ffca",
         "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "vaporcron",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MihaelIsaev/VaporCron.git",
+      "state" : {
+        "revision" : "ec41d63629cafe382f5ef2bb9579f20e81dfcd47",
+        "version" : "2.5.1"
       }
     },
     {

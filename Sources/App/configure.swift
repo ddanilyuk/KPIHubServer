@@ -3,6 +3,8 @@ import VaporRouting
 import Routes
 import Fluent
 import FluentPostgresDriver
+import VaporCron
+
 
 //enum SiteRouterKey: StorageKey {
 //    typealias Value = AnyParserPrinter<URLRequestData, SiteRoute>
@@ -33,7 +35,6 @@ public func configure(_ app: Application) throws {
     app.databases.use(
         .postgres(
             hostname: "localhost",
-//            port: 5432,
             username: "vapor",
             password: "vapor123",
             database: "vapor"
@@ -44,4 +45,23 @@ public func configure(_ app: Application) throws {
     
     app.mount(router, use: siteHandler)
 
+    try app.cron.schedule(RefreshGroupsCron.self)
+}
+
+
+public struct RefreshGroupsCron: AsyncVaporCronSchedulable {
+    public typealias T = Void
+
+    public static var expression: String {
+        "0 4 * * *"
+    }
+
+    public static func task(on application: Application) async throws -> Void {
+        application.logger.info("\(Self.self) is running...")
+        let groupsController = GroupsController()
+        let groups = try await groupsController.getNewGroups(client: application.client)
+        try await GroupModel.query(on: application.db).delete(force: true)
+        try await groups.create(on: application.db)
+        application.logger.info("\(Self.self) Successfully finished")
+    }
 }

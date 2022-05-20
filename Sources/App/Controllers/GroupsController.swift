@@ -50,21 +50,31 @@ extension GroupModel: AsyncMigration {
 
 final class GroupsController {
 
-    func forceRefresh(request: Request) async throws -> GroupsResponse {
-        let ukrAlp: [String] = [
-            "а", "б", "в", "г", "д", "е", "є", "ж", "з", "и", "і",
-            "ї", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
-            "у", "ф", "ч", "ц", "ч", "ш", "щ", "ю", "я", "ь"
-        ]
-//        let groups: [GroupModel] = [
-//            GroupModel(id: UUID(uuidString: "5e2768cf-e19a-4d0d-96cd-f176a552ca61")!, name: "АК-01"),
-//            GroupModel(id: UUID(uuidString: "deadbeed-dead-beed-dead-deadbeefdead")!, name: "Test21231231"),
-////            GroupModel(id: UUID(uuidString: "deadbeed-dead-beed-dead-deadbeefdead")!, name: "Test2")
-//        ]
+    static let ukrAlp: [String] = [
+        "а", "б", "в", "г", "д", "е", "є", "ж", "з", "и", "і",
+        "ї", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
+        "у", "ф", "ч", "ц", "ч", "ш", "щ", "ю", "я", "ь"
+    ]
 
-        let groups = try await ukrAlp
+    func forceRefresh(request: Request) async throws -> GroupsResponse {
+
+
+        let groups = try await getNewGroups(client: request.client)
+        try await GroupModel.query(on: request.db).delete(force: true)
+        try await groups.create(on: request.db)
+
+        let groupModels = try await GroupModel.query(on: request.db).all()
+        return GroupsResponse(
+            numberOfGroups: groupModels.count,
+            groups: groupModels
+        )
+    }
+
+    func getNewGroups(client: Client) async throws -> [GroupModel] {
+
+        try await GroupsController.ukrAlp
             .asyncMap { alp -> AllGroupsResponse in
-                let response: ClientResponse = try await request.client.post(
+                let response: ClientResponse = try await client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx/GetGroups",
                     beforeSend: { clientRequest in
                         let content = AllGroupQuery(prefixText: alp, count: 100)
@@ -77,7 +87,7 @@ final class GroupsController {
                 partialResult.append(contentsOf: response.d ?? [])
             }
             .asyncMap { groupName -> [Group] in
-                let response: ClientResponse = try await request.client.post(
+                let response: ClientResponse = try await client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx",
                     beforeSend: { clientRequest in
                         clientRequest.headers.add(
@@ -90,7 +100,7 @@ final class GroupsController {
                         }
                     }
                 )
-                request.logger.info("\(response.headers)")
+//                client.logger.info("\(response.headers)")
                 guard
                     var body = response.body,
                     let html = body.readString(length: body.readableBytes)
@@ -104,19 +114,6 @@ final class GroupsController {
             .flatMap { $0 }
             .map { GroupModel(id: UUID(uuidString: $0.id), name: $0.name) }
             .uniqued()
-
-        try await GroupModel.query(on: request.db).delete(force: true)
-        try await groups.create(on: request.db)
-
-//            .asyncForEach { model in
-//                try await model.save(on: request.db)
-//            }
-
-        let groupModels = try await GroupModel.query(on: request.db).all()
-        return GroupsResponse(
-            numberOfGroups: groupModels.count,
-            groups: groupModels
-        )
     }
 
     func parseAllGroups(request: Request) async throws -> GroupsResponse {
