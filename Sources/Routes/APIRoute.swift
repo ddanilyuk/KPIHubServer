@@ -40,7 +40,9 @@ public enum GroupsRoute: Equatable {
 }
 
 public let groupRouter = OneOf {
-    Route(.case(GroupRoute.lessons))
+    Route(.case(GroupRoute.lessons)) {
+        Path { "lessons" }
+    }
 }
 
 public let groupsRouter = OneOf {

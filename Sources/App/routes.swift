@@ -11,7 +11,7 @@ extension Teacher: Content {
 }
 
 struct LessonResponse: Content {
-    var id: String
+    var id: UUID
     let lessons: [Lesson]
 }
 
@@ -41,18 +41,7 @@ func siteHandler(
 ) async throws -> AsyncResponseEncodable {
     switch route {
     case .home:
-        let id = "60ed5ac1-c1a1-40d9-968d-d54ae056c1ca"
-        let response = try await request.client.get(
-            "http://rozklad.kpi.ua/Schedules/ViewSchedule.aspx?g=\(id)"
-        )
-        guard
-            var body = response.body,
-            let html = body.readString(length: body.readableBytes)
-        else {
-            throw Abort(.internalServerError)
-        }
-        let lessons = try RozkladParser().parse(html)
-        return LessonResponse(id: id, lessons: lessons)
+        return "\(route)"
 
     case let .api(route):
         return try await apiHandler(request: request, route: route)
@@ -132,7 +121,17 @@ func groupHandler(
 ) async throws -> AsyncResponseEncodable {
     switch route {
     case .lessons:
-        return "\(route)"
+        let response = try await request.client.get(
+            "http://rozklad.kpi.ua/Schedules/ViewSchedule.aspx?g=\(uuid.uuidString)"
+        )
+        guard
+            var body = response.body,
+            let html = body.readString(length: body.readableBytes)
+        else {
+            throw Abort(.internalServerError)
+        }
+        let lessons = try RozkladParser().parse(html)
+        return LessonResponse(id: uuid, lessons: lessons)
     }
 }
 
