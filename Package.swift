@@ -18,6 +18,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing", revision: "0.9.2"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.1.0"),
         .package(url: "https://github.com/pointfreeco/vapor-routing", from: "0.1.0"),
@@ -33,6 +35,8 @@ let package = Package(
         .target(
             name: "App",
             dependencies: [
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "VaporRouting", package: "vapor-routing"),
                 .target(name: "Routes"),

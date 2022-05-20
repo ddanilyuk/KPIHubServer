@@ -35,6 +35,7 @@ public enum GroupRoute: Equatable {
 
 public enum GroupsRoute: Equatable {
     case all
+    case forceRefresh
     case search(GroupQuery = .init())
 }
 
@@ -45,6 +46,9 @@ public let groupRouter = OneOf {
 public let groupsRouter = OneOf {
     Route(.case(GroupsRoute.all)) {
         Path { "all" }
+    }
+    Route(.case(GroupsRoute.forceRefresh)) {
+        Path { "forceRefresh" }
     }
     Route(.case(GroupsRoute.search)) {
         Parse(.memberwise(GroupQuery.init)) {

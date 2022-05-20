@@ -7,17 +7,60 @@
 
 import Vapor
 import RozkladParser
+import Fluent
+import FluentPostgresDriver
+import Foundation
+
+final class GroupModel: Model {
+
+    static let schema = "groups"
+
+    @ID(key: .id)
+    var id: UUID?
+
+    @Field(key: "name")
+    var name: String
+
+    // Creates a new, empty Galaxy.
+    init() {
+        name = ""
+    }
+
+    init(id: UUID? = nil, name: String) {
+        self.id = id
+        self.name = name
+    }
+
+}
+
+extension GroupModel: AsyncMigration {
+    // Prepares the database for storing Galaxy models.
+    func prepare(on database: Database) async throws {
+        try await database.schema(GroupModel.schema)
+            .id()
+            .field("name", .string)
+            .create()
+    }
+
+    // Optionally reverts the changes made in the prepare method.
+    func revert(on database: Database) async throws {
+        try await database.schema(GroupModel.schema).delete()
+    }
+}
 
 final class GroupsController {
 
-    func parseAllGroups(request: Request) async throws -> GroupsResponse {
-
+    func forceRefresh(request: Request) async throws -> GroupsResponse {
         let ukrAlp: [String] = [
-            "а",
-//            "б", "в", "г", "д", "е", "є", "ж", "з", "и", "і",
-//            "ї", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
-//            "у", "ф", "ч", "ц", "ч", "ш", "щ", "ю", "я", "ь"
+            "а", "б", "в", "г", "д", "е", "є", "ж", "з", "и", "і",
+            "ї", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
+            "у", "ф", "ч", "ц", "ч", "ш", "щ", "ю", "я", "ь"
         ]
+//        let groups: [GroupModel] = [
+//            GroupModel(id: UUID(uuidString: "5e2768cf-e19a-4d0d-96cd-f176a552ca61")!, name: "АК-01"),
+//            GroupModel(id: UUID(uuidString: "deadbeed-dead-beed-dead-deadbeefdead")!, name: "Test21231231"),
+////            GroupModel(id: UUID(uuidString: "deadbeed-dead-beed-dead-deadbeefdead")!, name: "Test2")
+//        ]
 
         let groups = try await ukrAlp
             .asyncMap { alp -> AllGroupsResponse in
@@ -34,7 +77,6 @@ final class GroupsController {
                 partialResult.append(contentsOf: response.d ?? [])
             }
             .asyncMap { groupName -> [Group] in
-//                try await request.client.
                 let response: ClientResponse = try await request.client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx",
                     beforeSend: { clientRequest in
@@ -48,7 +90,7 @@ final class GroupsController {
                         }
                     }
                 )
-                request.logger.info("\(response)")
+                request.logger.info("\(response.headers)")
                 guard
                     var body = response.body,
                     let html = body.readString(length: body.readableBytes)
@@ -58,10 +100,44 @@ final class GroupsController {
                 let parsed = try GroupIdParser(groupName: groupName).parse(html)
 
                 return parsed.map { Group(id: $0.groupId, name: $0.groupName) }
-//                try response.content.decode(AllGroupsResponse.self)
             }
             .flatMap { $0 }
+            .map { GroupModel(id: UUID(uuidString: $0.id), name: $0.name) }
+            .uniqued()
 
-        return GroupsResponse(numberOfGroups: groups.count, groups: groups)
+        try await GroupModel.query(on: request.db).delete(force: true)
+        try await groups.create(on: request.db)
+
+//            .asyncForEach { model in
+//                try await model.save(on: request.db)
+//            }
+
+        let groupModels = try await GroupModel.query(on: request.db).all()
+        return GroupsResponse(
+            numberOfGroups: groupModels.count,
+            groups: groupModels
+        )
+    }
+
+    func parseAllGroups(request: Request) async throws -> GroupsResponse {
+
+        let groupModels = try await GroupModel.query(on: request.db).all()
+        return GroupsResponse(numberOfGroups: groupModels.count, groups: groupModels)
+    }
+}
+
+extension Array where Element: Model {
+    func uniqued() -> Array {
+        var buffer = Array()
+        var added = Set<Element.IDValue>()
+        for element in self {
+            if let elementId = element.id, !added.contains(elementId) {
+                buffer.append(element)
+                added.insert(elementId)
+            } else {
+                Swift.print("!!!!!!!!!! NOT UNIQUE \(element)")
+            }
+        }
+        return buffer
     }
 }

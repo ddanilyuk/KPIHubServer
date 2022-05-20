@@ -21,7 +21,7 @@ struct AllGroupsResponse: Content {
 
 struct GroupsResponse {
     let numberOfGroups: Int
-    let groups: [Group]
+    let groups: [GroupModel]
 }
 extension GroupsResponse: Content {
 
@@ -116,6 +116,10 @@ func groupsHandler(
 //        }
 //        return result
 
+    case .forceRefresh:
+        let controller = GroupsController()
+        return try await controller.forceRefresh(request: request)
+
     case let .search(groupQuery):
         return "\(route)"
     }
@@ -143,5 +147,13 @@ extension Sequence {
         }
 
         return values
+    }
+
+    func asyncForEach(
+        _ operation: (Element) async throws -> Void
+    ) async rethrows {
+        for element in self {
+            try await operation(element)
+        }
     }
 }
