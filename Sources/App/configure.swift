@@ -31,13 +31,15 @@ public func configure(_ app: Application) throws {
 //    app.router = router
 //        .baseURL("http://127.0.0.1:8080")
 //        .eraseToAnyParserPrinter()
+    let username = Environment.get("DATABASE_USERNAME") ?? ""
+    app.logger.info("username \(username)")
 
     app.databases.use(
         .postgres(
             hostname: "localhost",
-            username: "vapor",
-            password: "vapor123",
-            database: "vapor"
+            username: username,
+            password: Environment.get("DATABASE_PASSWORD") ?? "",
+            database: Environment.get("DATABASE_NAME") ?? ""
         ),
         as: .psql
     )
