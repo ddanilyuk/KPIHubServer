@@ -46,7 +46,7 @@ FROM ubuntu:focal
 
 # Make sure all system packages are up to date.
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
-    apt-get -q update && apt-get -q dist-upgrade -y && apt-get -q install -y ca-certificates tzdata && \
+    apt-get -q update && apt-get -q dist-upgrade -y && apt-get -q install -y ca-certificates tzdata curl && \
     rm -r /var/lib/apt/lists/*
 
 # Create a vapor user and group with /app as its home directory
@@ -57,6 +57,8 @@ WORKDIR /app
 
 # Copy built executable and any staged resources from builder
 COPY --from=build --chown=vapor:vapor /staging /app
+COPY --from=build --chown=vapor:vapor /build/.env /app
+COPY --from=build --chown=vapor:vapor /build/.env.production /app
 
 # Ensure all further commands run as the vapor user
 USER vapor:vapor
