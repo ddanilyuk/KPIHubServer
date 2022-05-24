@@ -58,8 +58,10 @@ final class GroupsController {
 
     func forceRefresh(request: Request) async throws -> GroupsResponse {
 
-
-        let groups = try await getNewGroups(client: request.client)
+        let groups = try await getNewGroups(
+            client: request.client,
+            logger: request.logger
+        )
         try await GroupModel.query(on: request.db).delete(force: true)
         try await groups.create(on: request.db)
 
@@ -70,9 +72,9 @@ final class GroupsController {
         )
     }
 
-    func getNewGroups(client: Client) async throws -> [GroupModel] {
-
-        try await GroupsController.ukrAlp
+    func getNewGroups(client: Client, logger: Logger) async throws -> [GroupModel] {
+        var count = 0
+        return try await GroupsController.ukrAlp
             .asyncMap { alp -> AllGroupsResponse in
                 let response: ClientResponse = try await client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx/GetGroups",
@@ -100,7 +102,8 @@ final class GroupsController {
                         }
                     }
                 )
-//                client.logger.info("\(response.headers)")
+                count += 1
+                logger.info("\(count) \(response.headers)")
                 guard
                     var body = response.body,
                     let html = body.readString(length: body.readableBytes)
