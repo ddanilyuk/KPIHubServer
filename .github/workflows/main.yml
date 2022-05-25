@@ -56,6 +56,7 @@ jobs:
             export DATABASE_NAME=$DATABASE_NAME
             export DATABASE_USERNAME=$DATABASE_USERNAME
             export DATABASE_PASSWORD=$DATABASE_PASSWORD
-            docker-compose -f docker-compose.prod-ci.yml -p prod pull
-            docker-compose -f docker-compose.prod-ci.yml -p prod up app -d
-            docker-compose -f docker-compose.prod-ci.yml -p prod run migrate
+            docker-compose --compatibility -f docker-compose.prod-ci.yml -p prod pull
+            docker-compose --compatibility -f docker-compose.prod-ci.yml -p prod up app -d
+            sleep 30
+            docker-compose --compatibility -f docker-compose.prod-ci.yml -p prod run migrate
