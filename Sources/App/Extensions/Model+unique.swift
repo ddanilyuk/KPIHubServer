@@ -9,6 +9,7 @@ import Foundation
 import FluentSQL
 
 extension Array where Element: Model {
+
     func uniqued() -> Array {
         var buffer = Array()
         var added = Set<Element.IDValue>()
@@ -16,10 +17,9 @@ extension Array where Element: Model {
             if let elementId = element.id, !added.contains(elementId) {
                 buffer.append(element)
                 added.insert(elementId)
-            } else {
-                Swift.print("!!!!!!!!!! NOT UNIQUE \(element)")
             }
         }
         return buffer
     }
+
 }

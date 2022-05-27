@@ -27,4 +27,5 @@ public struct RefreshGroupsCron: AsyncVaporCronSchedulable {
         try await groups.create(on: application.db)
         application.logger.info("\(Self.self) Successfully finished")
     }
+    
 }

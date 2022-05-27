@@ -10,8 +10,7 @@ import KPIHubParser
 
 final class LessonsController {
 
-    func getGroups(for uuid: UUID, request: Request) async throws -> LessonResponse {
-
+    func getGroups(for uuid: UUID, request: Request) async throws -> LessonsResponse {
         let response = try await request.client.get(
             "http://rozklad.kpi.ua/Schedules/ViewSchedule.aspx?g=\(uuid.uuidString)"
         )
@@ -21,7 +20,8 @@ final class LessonsController {
         else {
             throw Abort(.internalServerError)
         }
-        let lessons = try RozkladParser().parse(html)
-        return LessonResponse(id: uuid, lessons: lessons)
+        let lessons = try LessonsParser().parse(html)
+        return LessonsResponse(id: uuid, lessons: lessons)
     }
+    
 }

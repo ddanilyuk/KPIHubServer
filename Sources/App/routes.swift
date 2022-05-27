@@ -41,7 +41,7 @@ func groupsHandler(
     switch route {
     case .all:
         let controller = GroupsController()
-        return try await controller.parseAllGroups(request: request)
+        return try await controller.allGroups(request: request)
 
     case .forceRefresh:
         let controller = GroupsController()

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  GroupsResponse.swift
 //  
 //
 //  Created by Denys Danyliuk on 27.05.2022.

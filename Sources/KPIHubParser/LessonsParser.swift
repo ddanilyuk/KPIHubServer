@@ -1,5 +1,5 @@
 //
-//  RozkladParser.swift
+//  LessonsParser.swift
 //  
 //
 //  Created by Denys Danyliuk on 19.05.2022.
@@ -8,7 +8,7 @@
 import Foundation
 import Parsing
 
-public struct RozkladParser: Parser {
+public struct LessonsParser: Parser {
 
     // MARK: - Typealiases
 
