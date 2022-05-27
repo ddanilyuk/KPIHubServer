@@ -1,6 +1,6 @@
 import Vapor
 import Routes
-import RozkladParser
+import KPIHubParser
 
 // MARK: - rootHandler
 

@@ -12,8 +12,8 @@ let package = Package(
             targets: ["Routes"]
         ),
         .library(
-            name: "RozkladParser",
-            targets: ["RozkladParser"]
+            name: "KPIHubParser",
+            targets: ["KPIHubParser"]
         )
     ],
     dependencies: [
@@ -42,7 +42,7 @@ let package = Package(
                 .product(name: "VaporCron", package: "VaporCron"),
                 .product(name: "VaporRouting", package: "vapor-routing"),
                 .target(name: "Routes"),
-                .target(name: "RozkladParser"),
+                .target(name: "KPIHubParser"),
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
@@ -52,7 +52,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "RozkladParser",
+            name: "KPIHubParser",
             dependencies: [
                 .product(name: "Parsing", package: "swift-parsing")
             ]
@@ -71,9 +71,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "RozkladParserTests",
+            name: "KPIHubParserTests",
             dependencies: [
-                .target(name: "RozkladParser"),
+                .target(name: "KPIHubParser"),
             ]
         )
     ]

@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import RozkladParser
+@testable import KPIHubParser
 
 //final class RozkladParserTests: XCTestCase {
 //    func testExample() throws {

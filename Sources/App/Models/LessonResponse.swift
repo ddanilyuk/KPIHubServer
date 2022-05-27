@@ -7,7 +7,7 @@
 
 import Vapor
 import Routes
-import RozkladParser
+import KPIHubParser
 
 struct LessonResponse {
     var id: UUID

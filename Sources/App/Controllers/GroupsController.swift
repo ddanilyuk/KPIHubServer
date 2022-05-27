@@ -6,7 +6,7 @@
 //
 
 import Vapor
-import RozkladParser
+import KPIHubParser
 import Fluent
 import FluentPostgresDriver
 import Foundation
