@@ -11,43 +11,6 @@ import Fluent
 import FluentPostgresDriver
 import Foundation
 
-final class GroupModel: Model {
-
-    static let schema = "groups"
-
-    @ID(key: .id)
-    var id: UUID?
-
-    @Field(key: "name")
-    var name: String
-
-    // Creates a new, empty Galaxy.
-    init() {
-        name = ""
-    }
-
-    init(id: UUID? = nil, name: String) {
-        self.id = id
-        self.name = name
-    }
-
-}
-
-extension GroupModel: AsyncMigration {
-    // Prepares the database for storing Galaxy models.
-    func prepare(on database: Database) async throws {
-        try await database.schema(GroupModel.schema)
-            .id()
-            .field("name", .string)
-            .create()
-    }
-
-    // Optionally reverts the changes made in the prepare method.
-    func revert(on database: Database) async throws {
-        try await database.schema(GroupModel.schema).delete()
-    }
-}
-
 final class GroupsController {
 
     static let ukrAlp: [String] = [
@@ -55,6 +18,8 @@ final class GroupsController {
         "ї", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
         "у", "ф", "ч", "ц", "ч", "ш", "щ", "ю", "я", "ь"
     ]
+
+    // MARK: - Requests
 
     func forceRefresh(request: Request) async throws -> GroupsResponse {
 
@@ -64,7 +29,6 @@ final class GroupsController {
         )
         try await GroupModel.query(on: request.db).delete(force: true)
         try await groups.create(on: request.db)
-
         let groupModels = try await GroupModel.query(on: request.db).all()
         return GroupsResponse(
             numberOfGroups: groupModels.count,
@@ -72,23 +36,31 @@ final class GroupsController {
         )
     }
 
+    func parseAllGroups(request: Request) async throws -> GroupsResponse {
+
+        let groupModels = try await GroupModel.query(on: request.db).all()
+        return GroupsResponse(numberOfGroups: groupModels.count, groups: groupModels)
+    }
+
+    // MARK: - Other methods
+
     func getNewGroups(client: Client, logger: Logger) async throws -> [GroupModel] {
         var count = 0
         return try await GroupsController.ukrAlp
-            .asyncMap { alp -> AllGroupsResponse in
+            .asyncMap { letter -> AllGroupsClientResponse in
                 let response: ClientResponse = try await client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx/GetGroups",
                     beforeSend: { clientRequest in
-                        let content = AllGroupQuery(prefixText: alp, count: 100)
+                        let content = AllGroupClientRequest(prefixText: letter, count: 100)
                         try clientRequest.content.encode(content)
                     }
                 )
-                return try response.content.decode(AllGroupsResponse.self)
+                return try response.content.decode(AllGroupsClientResponse.self)
             }
             .reduce(into: []) { partialResult, response in
                 partialResult.append(contentsOf: response.d ?? [])
             }
-            .asyncMap { groupName -> [Group] in
+            .asyncMap { groupName -> [GroupModel] in
                 let response: ClientResponse = try await client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx",
                     beforeSend: { clientRequest in
@@ -110,34 +82,12 @@ final class GroupsController {
                 else {
                     throw Abort(.internalServerError)
                 }
-                let parsed = try GroupIdParser(groupName: groupName).parse(html)
-
-                return parsed.map { Group(id: $0.groupId, name: $0.groupName) }
+                return try GroupParser(groupName: groupName)
+                    .parse(html)
+                    .map { GroupModel(id: $0.id, name: $0.name) }
             }
             .flatMap { $0 }
-            .map { GroupModel(id: UUID(uuidString: $0.id), name: $0.name) }
             .uniqued()
     }
-
-    func parseAllGroups(request: Request) async throws -> GroupsResponse {
-
-        let groupModels = try await GroupModel.query(on: request.db).all()
-        return GroupsResponse(numberOfGroups: groupModels.count, groups: groupModels)
-    }
-}
-
-extension Array where Element: Model {
-    func uniqued() -> Array {
-        var buffer = Array()
-        var added = Set<Element.IDValue>()
-        for element in self {
-            if let elementId = element.id, !added.contains(elementId) {
-                buffer.append(element)
-                added.insert(elementId)
-            } else {
-                Swift.print("!!!!!!!!!! NOT UNIQUE \(element)")
-            }
-        }
-        return buffer
-    }
+    
 }
