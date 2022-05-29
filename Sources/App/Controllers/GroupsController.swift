@@ -62,7 +62,7 @@ final class GroupsController {
             }
 
         // Receiving groups id from second endpoint and parsing it
-        return groupsNames
+        return try await groupsNames
             .asyncMap { groupName -> [GroupModel] in
                 let response: ClientResponse = try await client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx",
