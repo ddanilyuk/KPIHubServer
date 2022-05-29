@@ -7,7 +7,7 @@
 
 import Vapor
 
-public struct AllGroupClientRequest: Content {
+struct AllGroupClientRequest: Content {
 
     public var prefixText: String
     public var count: Int
