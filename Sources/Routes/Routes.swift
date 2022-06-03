@@ -35,8 +35,8 @@ public enum CampusRoute: Equatable {
 
 public enum GroupsRoute: Equatable {
     case all
+    case search(GroupSearchQuery)
     case forceRefresh
-    case search(GroupQuery = .init())
 }
 
 

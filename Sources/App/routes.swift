@@ -64,12 +64,13 @@ func groupsHandler(
         let controller = GroupsController()
         return try await controller.allGroups(request: request)
 
+    case let .search(searchQuery):
+        let controller = GroupsController()
+        return try await controller.search(request: request, searchQuery: searchQuery)
+
     case .forceRefresh:
         let controller = GroupsController()
         return try await controller.forceRefresh(request: request)
-
-    case let .search(groupQuery):
-        return "\(route) | \(groupQuery)"
     }
 }
 

@@ -60,15 +60,16 @@ public let groupsRouter = OneOf {
     Route(.case(GroupsRoute.all)) {
         Path { "all" }
     }
-    Route(.case(GroupsRoute.forceRefresh)) {
-        Path { "forceRefresh" }
-    }
     Route(.case(GroupsRoute.search)) {
-        Parse(.memberwise(GroupQuery.init)) {
+        Path { "search" }
+        Parse(.memberwise(GroupSearchQuery.init)) {
             Query {
                 Field("name")
             }
         }
+    }
+    Route(.case(GroupsRoute.forceRefresh)) {
+        Path { "forceRefresh" }
     }
 }
 
