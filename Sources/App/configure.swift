@@ -35,6 +35,10 @@ public func configure(_ app: Application) throws {
 
     app.mount(rootRouter, use: rootHandler)
 
+    // MARK: - Client configuration
+
+    app.http.client.configuration.redirectConfiguration = .disallow
+
     // MARK: - Cron
 
     try app.cron.schedule(RefreshGroupsCron.self)

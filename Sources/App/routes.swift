@@ -24,11 +24,32 @@ func apiHandler(
     route: APIRoute
 ) async throws -> AsyncResponseEncodable {
     switch route {
+    case let .campus(route):
+        return try await campusHandler(request: request, route: route)
+
+
     case let .groups(route):
         return try await groupsHandler(request: request, route: route)
 
     case let .group(uuid, route):
         return try await groupHandler(uuid: uuid, request: request, route: route)
+    }
+}
+
+// MARK: - campusHandler
+
+func campusHandler(
+    request: Request,
+    route: CampusRoute
+) async throws -> AsyncResponseEncodable {
+    switch route {
+    case .getGroup:
+        let controller = CampusController()
+        return try await controller.getGroup(request: request)
+
+    case .currentСontrol:
+        let controller = CampusController()
+        return try await controller.getCurrent(request: request)
     }
 }
 

@@ -26,10 +26,25 @@ public let apiRouter = OneOf {
         Path { "groups" }
         groupsRouter
     }
+    Route(.case(APIRoute.campus)) {
+        Path { "campus" }
+        campusRouter
+    }
     Route(.case(APIRoute.group)) {
         Path { "group" }
         Path { UUID.parser() }
         groupRouter
+    }
+}
+
+// MARK: - campusRouter
+
+public let campusRouter = OneOf {
+    Route(.case(CampusRoute.getGroup)) {
+        Path { "group" }
+    }
+    Route(.case(CampusRoute.currentСontrol)) {
+        Path { "currentControl" }
     }
 }
 

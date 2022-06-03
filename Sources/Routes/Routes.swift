@@ -19,8 +19,16 @@ public enum RootRoute: Equatable {
 // MARK: APIRoute
 
 public enum APIRoute: Equatable {
+    case campus(CampusRoute)
     case groups(GroupsRoute)
     case group(UUID, GroupRoute)
+}
+
+// MARK: CampusRoute
+
+public enum CampusRoute: Equatable {
+    case getGroup
+    case currentСontrol
 }
 
 // MARK: GroupsRoute
