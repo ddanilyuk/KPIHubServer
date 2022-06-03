@@ -27,7 +27,7 @@ public enum APIRoute: Equatable {
 // MARK: CampusRoute
 
 public enum CampusRoute: Equatable {
-    case getGroup
+    case userInfo(CampusLoginQuery)
     case currentСontrol
 }
 

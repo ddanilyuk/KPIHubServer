@@ -40,8 +40,14 @@ public let apiRouter = OneOf {
 // MARK: - campusRouter
 
 public let campusRouter = OneOf {
-    Route(.case(CampusRoute.getGroup)) {
-        Path { "group" }
+    Route(.case(CampusRoute.userInfo)) {
+        Path { "userInfo" }
+        Parse(.memberwise(CampusLoginQuery.init)) {
+            Query {
+                Field("username")
+                Field("password")
+            }
+        }
     }
     Route(.case(CampusRoute.currentСontrol)) {
         Path { "currentControl" }

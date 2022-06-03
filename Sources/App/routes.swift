@@ -43,9 +43,9 @@ func campusHandler(
     route: CampusRoute
 ) async throws -> AsyncResponseEncodable {
     switch route {
-    case .getGroup:
+    case let .userInfo(loginQuery):
         let controller = CampusController()
-        return try await controller.getGroup(request: request)
+        return try await controller.userInfo(request: request, loginQuery: loginQuery)
 
     case .currentСontrol:
         let controller = CampusController()

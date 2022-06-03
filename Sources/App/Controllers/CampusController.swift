@@ -7,70 +7,32 @@
 
 import Vapor
 import KPIHubParser
-
-struct CampusAPILogin: Equatable, Codable {
-
-    let accessToken: String
-    let sessionId: String
-
-    enum CodingKeys: String, CodingKey {
-        case accessToken = "access_token"
-        case sessionId
-    }
-}
+import Routes
 
 final class CampusController {
 
-    func getGroup(request: Request) async throws -> String {
-//        let groups = try await getNewGroups(
-//            client: request.client,
-//            logger: request.logger
-//        )
-//        try await GroupModel.query(on: request.db).delete(force: true)
-//        try await groups.create(on: request.db)
-//        let groupModels = try await GroupModel.query(on: request.db).all()
-
-        let url1 = URL(string: "https://api.campus.kpi.ua/oauth/token?Username=dda77177&Password=4a78dd74")!
-//        try await request.client.post(url1)
-//            .content.decode(<#T##decodable: Content.Protocol##Content.Protocol#>)
-
-
-        let response: ClientResponse = try await request.client.post(
-            "https://api.campus.kpi.ua/oauth/token?Username=dda77177&Password=4a78dd74",
+    func userInfo(
+        request: Request,
+        loginQuery: CampusLoginQuery
+    ) async throws -> String {
+        let oauthResponse: ClientResponse = try await request.client.post(
+            "https://api.campus.kpi.ua/oauth/token",
             beforeSend: { clientRequest in
-//                let content = AllGroupClientRequest(prefixText: letter, count: 100)
-//                clientRequest.
-//                try clientRequest.content.encode(content)
+                try clientRequest.query.encode(loginQuery)
             }
         )
-        let result = try response.content.decode(CampusAPILogin.self)
+        let campusAPICredentials = try oauthResponse.content.decode(CampusAPICredentials.self)
 
-        let all = response.headers.setCookie!.all
-        let wrapped = response.headers.setCookie.wrapped!
-        print(all)
-        print("---")
-        print(wrapped)
-        print(result)
-
-        let response2: ClientResponse = try await request.client.get(
+        let accountInfoResponse: ClientResponse = try await request.client.get(
             "https://api.campus.kpi.ua/Account/Info",
             beforeSend: { clientRequest in
-                let auth = BearerAuthorization(token: result.accessToken)
+                let auth = BearerAuthorization(token: campusAPICredentials.accessToken)
                 clientRequest.headers.bearerAuthorization = auth
-                //                let content = AllGroupClientRequest(prefixText: letter, count: 100)
-                //                clientRequest.
-                //                try clientRequest.content.encode(content)
             }
         )
-        print("!!!")
-        print(response2.description)
-
+        print(accountInfoResponse.description)
 
         return "Done"
-        //        return GroupsResponse(
-//            numberOfGroups: groupModels.count,
-//            groups: groupModels
-//        )
     }
 
     func getCurrent(request: Request) async throws -> String {
@@ -883,7 +845,7 @@ final class CampusController {
         let response1: ClientResponse = try await request.client.post(
             "https://api.campus.kpi.ua/oauth/token?Username=dda77177&Password=4a78dd74"
         )
-        let result = try response1.content.decode(CampusAPILogin.self)
+        let result = try response1.content.decode(CampusAPICredentials.self)
 
         let all = response1.headers.setCookie!.all
         let wrapped = response1.headers.setCookie.wrapped!
