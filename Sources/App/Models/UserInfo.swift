@@ -12,7 +12,7 @@ struct UserInfo: Codable, Equatable {
 
     // MARK: - StudyGroup
 
-    struct StudyGroup: Codable, Equatable {
+    struct InfoItem: Codable, Equatable {
         let id: Int
         let name: String
     }
@@ -22,13 +22,13 @@ struct UserInfo: Codable, Equatable {
     struct Profile: Codable, Equatable {
         let id: Int
         let profile: String
-        let subdivision: StudyGroup
+        let subdivision: InfoItem
     }
 
     let modules: [String]
-    let position: [StudyGroup]
-    let subdivision: [StudyGroup]
-    let studyGroup: StudyGroup
+    let position: [InfoItem]
+    let subdivision: [InfoItem]
+    let studyGroup: InfoItem
     let sid: String
     let email: String
     let scientificInterest: String
@@ -36,7 +36,8 @@ struct UserInfo: Codable, Equatable {
     let tgAuthLinked: Bool
     let profiles: [Profile]
     let id: Int
-    let userIdentifier, fullName: String
+    let userIdentifier: String
+    let fullName: String
     let photo: String
     let credo: String
 }
