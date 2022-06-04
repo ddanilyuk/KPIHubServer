@@ -1,5 +1,5 @@
 //
-//  CurrentControlParser.swift
+//  StudySheetActivitiesParser.swift
 //  
 //
 //  Created by Denys Danyliuk on 03.06.2022.
@@ -7,12 +7,12 @@
 
 import Parsing
 
-public struct StudySheetDetailParser: Parser {
+public struct StudySheetActivitiesParser: Parser {
 
     // MARK: - Typealiases
 
     public typealias Input = String
-    public typealias Output = [StudySheetDetailRow]
+    public typealias Output = [StudySheetActivity]
 
     // MARK: - Lifecycle
 
@@ -25,12 +25,14 @@ public struct StudySheetDetailParser: Parser {
         let upToNextTag = PrefixUpTo("<".utf8).map { String(Substring($0)) }
 
         let fieldParser = Parse {
+            Whitespace()
             OpenTagV2("td")
             upToNextTag
             CloseTagV2("td")
+            Whitespace()
         }
         let allFieldsParser = Parse { date, mark, type, teacher, note in
-            StudySheetDetailRow(
+            StudySheetActivity(
                 date: date,
                 mark: mark,
                 type: type,
@@ -45,11 +47,14 @@ public struct StudySheetDetailParser: Parser {
             fieldParser
         }
 
-
         let rowsParser = Many {
             Whitespace()
             OpenTagV2("tr")
-            allFieldsParser
+            Parse {
+                Whitespace()
+                allFieldsParser
+                Whitespace()
+            }
             CloseTagV2("tr")
             Whitespace()
         }

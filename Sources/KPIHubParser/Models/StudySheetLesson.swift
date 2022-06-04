@@ -1,5 +1,5 @@
 //
-//  StudySheetRow.swift
+//  StudySheetLesson.swift
 //  
 //
 //  Created by Denys Danyliuk on 03.06.2022.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct StudySheetRow: Codable {
+public struct StudySheetLesson: Codable {
 
     public let year: String
     public let semester: String

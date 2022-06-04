@@ -1,5 +1,5 @@
 //
-//  StudySheetParser.swift
+//  StudySheetLessonsParser.swift
 //  
 //
 //  Created by Denys Danyliuk on 03.06.2022.
@@ -8,12 +8,12 @@
 import Foundation
 import Parsing
 
-public struct StudySheetParser: Parser {
+public struct StudySheetLessonsParser: Parser {
 
     // MARK: - Typealiases
 
     public typealias Input = String
-    public typealias Output = [StudySheetRow]
+    public typealias Output = [StudySheetLesson]
 
     // MARK: - Lifecycle
 
@@ -71,7 +71,7 @@ public struct StudySheetParser: Parser {
         }
 
         let oneRowParser = Parse { trHeader, linkName, teacher in
-            StudySheetRow(
+            StudySheetLesson(
                 year: trHeader.year,
                 semester: trHeader.semestr,
                 link: linkName.link,

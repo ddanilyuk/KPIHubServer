@@ -1,5 +1,5 @@
 //
-//  StudySheetDetailRow.swift
+//  StudySheetActivity.swift
 //  
 //
 //  Created by Denys Danyliuk on 03.06.2022.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct StudySheetDetailRow: Codable {
+public struct StudySheetActivity: Codable {
 
     public let date: String
     public let mark: String

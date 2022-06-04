@@ -92,12 +92,7 @@ final class GroupsController {
                 )
                 numberOfParsedGroups += 1
                 logger.info("\(numberOfParsedGroups) \(response.headers)")
-                guard
-                    var body = response.body,
-                    let html = body.readString(length: body.readableBytes)
-                else {
-                    throw Abort(.internalServerError)
-                }
+                let html = try (response.body).htmlString(encoding: .utf8)
                 return try GroupParser(groupName: groupName)
                     .parse(html)
                     .map { GroupModel(id: $0.id, name: $0.name) }
