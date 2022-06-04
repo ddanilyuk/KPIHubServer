@@ -10,6 +10,7 @@ import KPIHubParser
 import Fluent
 import FluentPostgresDriver
 import Foundation
+import Routes
 
 final class GroupsController {
 
@@ -20,6 +21,23 @@ final class GroupsController {
     ]
 
     // MARK: - Requests
+
+    func allGroups(request: Request) async throws -> GroupsResponse {
+        let groupModels = try await GroupModel.query(on: request.db).all()
+        return GroupsResponse(numberOfGroups: groupModels.count, groups: groupModels)
+    }
+
+    func search(request: Request, searchQuery: GroupSearchQuery) async throws -> GroupModel {
+        // TODO: Handle multiple groups with one name
+        let groupModel = try await GroupModel.query(on: request.db)
+            .filter(\.$name == searchQuery.groupName)
+            .first()
+        if let groupModel = groupModel {
+            return groupModel
+        } else {
+            throw Abort(.notFound, reason: "Group not found")
+        }
+    }
 
     func forceRefresh(request: Request) async throws -> GroupsResponse {
         let groups = try await getNewGroups(
@@ -33,11 +51,6 @@ final class GroupsController {
             numberOfGroups: groupModels.count,
             groups: groupModels
         )
-    }
-
-    func allGroups(request: Request) async throws -> GroupsResponse {
-        let groupModels = try await GroupModel.query(on: request.db).all()
-        return GroupsResponse(numberOfGroups: groupModels.count, groups: groupModels)
     }
 
     // MARK: - Other methods
@@ -79,12 +92,7 @@ final class GroupsController {
                 )
                 numberOfParsedGroups += 1
                 logger.info("\(numberOfParsedGroups) \(response.headers)")
-                guard
-                    var body = response.body,
-                    let html = body.readString(length: body.readableBytes)
-                else {
-                    throw Abort(.internalServerError)
-                }
+                let html = try (response.body).htmlString(encoding: .utf8)
                 return try GroupParser(groupName: groupName)
                     .parse(html)
                     .map { GroupModel(id: $0.id, name: $0.name) }

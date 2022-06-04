@@ -14,12 +14,7 @@ final class LessonsController {
         let response = try await request.client.get(
             "http://rozklad.kpi.ua/Schedules/ViewSchedule.aspx?g=\(uuid.uuidString)"
         )
-        guard
-            var body = response.body,
-            let html = body.readString(length: body.readableBytes)
-        else {
-            throw Abort(.internalServerError)
-        }
+        let html = try (response.body).htmlString(encoding: .utf8)
         let lessons = try LessonsParser().parse(html)
         return LessonsResponse(id: uuid, lessons: lessons)
     }

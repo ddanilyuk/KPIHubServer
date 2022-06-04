@@ -26,10 +26,37 @@ public let apiRouter = OneOf {
         Path { "groups" }
         groupsRouter
     }
+    Route(.case(APIRoute.campus)) {
+        Path { "campus" }
+        campusRouter
+    }
     Route(.case(APIRoute.group)) {
         Path { "group" }
         Path { UUID.parser() }
         groupRouter
+    }
+}
+
+// MARK: - campusRouter
+
+public let campusRouter = OneOf {
+    Route(.case(CampusRoute.userInfo)) {
+        Path { "userInfo" }
+        Parse(.memberwise(CampusLoginQuery.init)) {
+            Query {
+                Field("username")
+                Field("password")
+            }
+        }
+    }
+    Route(.case(CampusRoute.studySheet)) {
+        Path { "studySheet" }
+        Parse(.memberwise(CampusLoginQuery.init)) {
+            Query {
+                Field("username")
+                Field("password")
+            }
+        }
     }
 }
 
@@ -39,15 +66,16 @@ public let groupsRouter = OneOf {
     Route(.case(GroupsRoute.all)) {
         Path { "all" }
     }
-    Route(.case(GroupsRoute.forceRefresh)) {
-        Path { "forceRefresh" }
-    }
     Route(.case(GroupsRoute.search)) {
-        Parse(.memberwise(GroupQuery.init)) {
+        Path { "search" }
+        Parse(.memberwise(GroupSearchQuery.init)) {
             Query {
                 Field("name")
             }
         }
+    }
+    Route(.case(GroupsRoute.forceRefresh)) {
+        Path { "forceRefresh" }
     }
 }
 

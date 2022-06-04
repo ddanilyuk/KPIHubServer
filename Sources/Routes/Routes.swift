@@ -19,16 +19,24 @@ public enum RootRoute: Equatable {
 // MARK: APIRoute
 
 public enum APIRoute: Equatable {
+    case campus(CampusRoute)
     case groups(GroupsRoute)
     case group(UUID, GroupRoute)
+}
+
+// MARK: CampusRoute
+
+public enum CampusRoute: Equatable {
+    case userInfo(CampusLoginQuery)
+    case studySheet(CampusLoginQuery)
 }
 
 // MARK: GroupsRoute
 
 public enum GroupsRoute: Equatable {
     case all
+    case search(GroupSearchQuery)
     case forceRefresh
-    case search(GroupQuery = .init())
 }
 
 

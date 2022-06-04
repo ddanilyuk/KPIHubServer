@@ -48,3 +48,9 @@ extension GroupModel: AsyncMigration {
     }
     
 }
+
+// MARK: - GroupModel + Content
+
+extension GroupModel: Content {
+
+}
