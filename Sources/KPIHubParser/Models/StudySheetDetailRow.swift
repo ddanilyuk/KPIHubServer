@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct StudySheetDetailRow {
+public struct StudySheetDetailRow: Codable {
 
     public let date: String
     public let mark: String

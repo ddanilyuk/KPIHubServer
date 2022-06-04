@@ -49,8 +49,14 @@ public let campusRouter = OneOf {
             }
         }
     }
-    Route(.case(CampusRoute.currentСontrol)) {
-        Path { "currentControl" }
+    Route(.case(CampusRoute.studySheet)) {
+        Path { "studySheet" }
+        Parse(.memberwise(CampusLoginQuery.init)) {
+            Query {
+                Field("username")
+                Field("password")
+            }
+        }
     }
 }
 

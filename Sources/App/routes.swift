@@ -47,9 +47,9 @@ func campusHandler(
         let controller = CampusController()
         return try await controller.userInfo(request: request, loginQuery: loginQuery)
 
-    case .currentСontrol:
+    case let .studySheet(loginQuery):
         let controller = CampusController()
-        return try await controller.getCurrent(request: request)
+        return try await controller.studySheet(request: request, loginQuery: loginQuery)
     }
 }
 

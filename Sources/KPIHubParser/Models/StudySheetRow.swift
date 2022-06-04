@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct StudySheetRow {
+public struct StudySheetRow: Codable {
 
     public let year: String
     public let semester: String

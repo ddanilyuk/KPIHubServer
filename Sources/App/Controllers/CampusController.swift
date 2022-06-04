@@ -9,18 +9,22 @@ import Vapor
 import KPIHubParser
 import Routes
 
+struct StudySheetResponse: Content {
+    let items: [StudySheetResponseItem]
+}
+
+struct StudySheetResponseItem: Content {
+    let row: StudySheetRow
+    let detailItems: [StudySheetDetailRow]
+}
+
 final class CampusController {
 
     func userInfo(
         request: Request,
         loginQuery: CampusLoginQuery
     ) async throws -> String {
-        let oauthResponse: ClientResponse = try await request.client.post(
-            "https://api.campus.kpi.ua/oauth/token",
-            beforeSend: { clientRequest in
-                try clientRequest.query.encode(loginQuery)
-            }
-        )
+        let oauthResponse = try await oauth(request: request, loginQuery: loginQuery)
         let campusAPICredentials = try oauthResponse.content.decode(CampusAPICredentials.self)
 
         let accountInfoResponse: ClientResponse = try await request.client.get(
@@ -35,7 +39,89 @@ final class CampusController {
         return "Done"
     }
 
-    func getCurrent(request: Request) async throws -> String {
+    func studySheet(
+        request: Request,
+        loginQuery: CampusLoginQuery
+    ) async throws -> StudySheetResponse {
+
+        let oauthResponse = try await oauth(request: request, loginQuery: loginQuery)
+        let campusAPICredentials = try oauthResponse.content.decode(CampusAPICredentials.self)
+
+        let authPHPResponse: ClientResponse = try await request.client.get(
+            "https://campus.kpi.ua/auth.php",
+            beforeSend: { clientRequest in
+                clientRequest.headers.cookie = oauthResponse.headers.setCookie
+            }
+        )
+
+        let studySheetResponse: ClientResponse = try await request.client.get(
+            "https://campus.kpi.ua/student/index.php?mode=studysheet",
+            beforeSend: { clientRequest in
+                let auth = BearerAuthorization(token: campusAPICredentials.accessToken)
+                clientRequest.headers.bearerAuthorization = auth
+                if let phpSessionId = authPHPResponse.headers.setCookie?.all["PHPSESSID"] {
+                    if let phpSessionId = authPHPResponse.headers.setCookie?.all["PHPSESSID"] {
+                        clientRequest.headers.cookie = HTTPCookies(
+                            dictionaryLiteral: ("PHPSESSID", phpSessionId)
+                        )
+                    }
+                }
+            }
+        )
+
+        guard
+            var body = studySheetResponse.body,
+            let html = body.readString(length: body.readableBytes)
+        else {
+            throw Abort(.internalServerError)
+        }
+
+        let studySheetParser = StudySheetParser()
+        let studySheetRows = try studySheetParser.parse(html)
+
+        let items = try await studySheetRows
+            .asyncMap { row -> StudySheetResponseItem in
+                let response: ClientResponse = try await request.client.post(
+                    "https://campus.kpi.ua\(row.link)",
+                    beforeSend: { clientRequest in
+                        let auth = BearerAuthorization(token: campusAPICredentials.accessToken)
+                        clientRequest.headers.bearerAuthorization = auth
+                        if let phpSessionId = authPHPResponse.headers.setCookie?.all["PHPSESSID"] {
+                            clientRequest.headers.cookie = HTTPCookies(
+                                dictionaryLiteral: ("PHPSESSID", phpSessionId)
+                            )
+                        }
+                    }
+                )
+                guard
+                    var body = response.body,
+                    let html = body.readString(length: body.readableBytes)
+                else {
+                    throw Abort(.internalServerError)
+                }
+                let detailItems = try StudySheetDetailParser()
+                    .parse(html)
+                return StudySheetResponseItem(row: row, detailItems: detailItems)
+            }
+
+        return StudySheetResponse(items: items)
+    }
+
+    // MARK: - Helpers
+
+    func oauth(
+        request: Request,
+        loginQuery: CampusLoginQuery
+    ) async throws -> ClientResponse {
+        try await request.client.post(
+            "https://api.campus.kpi.ua/oauth/token",
+            beforeSend: { clientRequest in
+                try clientRequest.query.encode(loginQuery)
+            }
+        )
+    }
+
+    func debug(request: Request) async throws -> String {
 
 
         let some = """
