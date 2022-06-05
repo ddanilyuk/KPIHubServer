@@ -32,12 +32,12 @@ public struct StudySheetLessonsParser: Parser {
 
         struct TRHeader {
             let year: String
-            let semestr: String
+            let semestr: Int
         }
 
 
         let trHeaderParser = Parse {
-            TRHeader(year: $0, semestr: $1)
+            TRHeader(year: $0, semestr: Int($1) ?? 0)
         } with: {
             Whitespace()
             Skip { PrefixThrough("=".utf8) }
@@ -46,18 +46,33 @@ public struct StudySheetLessonsParser: Parser {
             quotedField
         }
 
-        struct LinkName {
+        struct IdLink {
+            let id: Int
             let link: String
+        }
+
+        struct IdLinkName {
+            let idLink: IdLink
             let name: String
         }
 
-        let linkNameParser = Parse {
-            LinkName(link: $0, name: $1)
+        let idLinkParser = Parse { linkFirstPart, id, linkLastPart in
+            IdLink(id: id, link: "\(linkFirstPart)\(id)\(linkLastPart)")
+        } with: {
+            "\"".utf8
+            PrefixThrough("id=".utf8).map { String(Substring($0)) }
+            Int.parser()
+            PrefixUpTo("\"".utf8).map { String(Substring($0)) }
+            "\"".utf8
+        }
+
+        let idLinkNameParser = Parse { idLink, name in
+            IdLinkName(idLink: idLink, name: name)
         } with: {
             OpenTagV2("td")
             OpenTagV2("a") {
                 Skip { PrefixThrough("=".utf8) }
-                quotedField
+                idLinkParser
             }
             upToNextTag
             CloseTagV2("a")
@@ -66,17 +81,24 @@ public struct StudySheetLessonsParser: Parser {
 
         let teacherParser = Parse {
             OpenTagV2("td")
-            upToNextTag
+            Many {
+                Prefix { $0 != .init(ascii: "<") && $0 != .init(ascii: ",") }
+                    .map { String(Substring($0)) }
+            } separator: {
+                ",".utf8
+                Whitespace()
+            }
             CloseTagV2("td")
         }
 
-        let oneRowParser = Parse { trHeader, linkName, teacher in
+        let oneRowParser = Parse { trHeader, idLinkName, teachers in
             StudySheetLesson(
+                id: idLinkName.idLink.id,
                 year: trHeader.year,
                 semester: trHeader.semestr,
-                link: linkName.link,
-                name: linkName.name,
-                teacher: teacher
+                link: idLinkName.idLink.link,
+                name: idLinkName.name,
+                teachers: teachers
             )
         } with: {
             Whitespace()
@@ -87,7 +109,7 @@ public struct StudySheetLessonsParser: Parser {
                 Whitespace()
             }
             Parse {
-                linkNameParser
+                idLinkNameParser
                 Whitespace()
             }
             Parse {

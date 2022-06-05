@@ -9,10 +9,11 @@ import Foundation
 
 public struct StudySheetLesson: Codable {
 
+    public let id: Int
     public let year: String
-    public let semester: String
+    public let semester: Int
     public let link: String
     public let name: String
-    public let teacher: String
+    public let teachers: [String]
 
 }

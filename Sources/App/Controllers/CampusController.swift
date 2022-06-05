@@ -9,16 +9,6 @@ import Vapor
 import KPIHubParser
 import Routes
 
-struct StudySheetResponse: Content {
-    let studySheet: [StudySheetItem]
-}
-
-struct StudySheetItem: Content {
-    let lesson: StudySheetLesson
-    let activities: [StudySheetActivity]
-}
-
-
 final class CampusController {
 
     func userInfo(
