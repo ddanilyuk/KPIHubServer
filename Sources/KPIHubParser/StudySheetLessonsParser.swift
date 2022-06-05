@@ -32,12 +32,12 @@ public struct StudySheetLessonsParser: Parser {
 
         struct TRHeader {
             let year: String
-            let semestr: String
+            let semestr: Int
         }
 
 
         let trHeaderParser = Parse {
-            TRHeader(year: $0, semestr: $1)
+            TRHeader(year: $0, semestr: Int($1) ?? 0)
         } with: {
             Whitespace()
             Skip { PrefixThrough("=".utf8) }
@@ -66,17 +66,23 @@ public struct StudySheetLessonsParser: Parser {
 
         let teacherParser = Parse {
             OpenTagV2("td")
-            upToNextTag
+            Many {
+                Prefix { $0 != .init(ascii: "<") && $0 != .init(ascii: ",") }
+                    .map { String(Substring($0)) }
+            } separator: {
+                ",".utf8
+                Whitespace()
+            }
             CloseTagV2("td")
         }
 
-        let oneRowParser = Parse { trHeader, linkName, teacher in
+        let oneRowParser = Parse { trHeader, linkName, teachers in
             StudySheetLesson(
                 year: trHeader.year,
                 semester: trHeader.semestr,
                 link: linkName.link,
                 name: linkName.name,
-                teacher: teacher
+                teachers: teachers
             )
         } with: {
             Whitespace()
