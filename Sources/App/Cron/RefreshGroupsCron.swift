@@ -13,7 +13,7 @@ public struct RefreshGroupsCron: AsyncVaporCronSchedulable {
     public typealias T = Void
 
     public static var expression: String {
-        "0 4 * * 1,4"
+        "0 4 * * 0"
     }
 
     public static func task(on application: Application) async throws -> Void {
