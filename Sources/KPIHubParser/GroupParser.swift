@@ -20,11 +20,12 @@ public struct GroupParser: Parser {
 
     public func parse(_ input: inout String) throws -> [Group] {
 
+        let linkParser = Parse {
+            Skip { PrefixThrough("ViewSchedule.aspx?g=") }
+            PrefixUpTo("\"").map { UUID(uuidString: String($0)) }
+        }
         let singleIdParser = Parse {
-            Parse {
-                Skip { PrefixThrough("ViewSchedule.aspx?g=") }
-                PrefixUpTo("\"").map { UUID(uuidString: String($0)) }
-            }
+            linkParser
             Parse {
                 "\">"
                 PrefixUpTo("<").map { String($0) }
@@ -40,7 +41,7 @@ public struct GroupParser: Parser {
         let parser = Parse {
             OneOf {
                 multipleIdParser
-                singleIdParser.map { [$0] }
+                linkParser.map { [Group(id: $0, name: groupName)] }
             }
             Skip { Rest() }
         }
