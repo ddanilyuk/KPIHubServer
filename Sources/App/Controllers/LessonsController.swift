@@ -16,7 +16,7 @@ final class LessonsController {
         )
         let html = try (response.body).htmlString(encoding: .utf8)
         let lessons = try LessonsParser().parse(html)
-        return LessonsResponse(id: uuid, lessons: lessons)
+        return LessonsResponse(id: groupUUID, lessons: lessons)
     }
     
 }

@@ -8,11 +8,7 @@
 import Foundation
 import Parsing
 
-public struct GroupParser: Parser, Equatable {
-
-    typealias Input = String
-
-    typealias Output = [Group]
+public struct GroupParser: Parser {
 
     public let groupName: String
 
@@ -50,10 +46,6 @@ public struct GroupParser: Parser, Equatable {
             Skip { Rest() }
         }
         return try parser.parse(input)
-    }
-    
-    static func == (lhs: GroupParser, rhs: GroupParser) -> Bool {
-        return lhs.groupName == rhs.groupName
     }
 
 }
