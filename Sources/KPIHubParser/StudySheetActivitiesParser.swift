@@ -26,9 +26,9 @@ public struct StudySheetActivitiesParser: Parser {
 
         let fieldParser = Parse {
             Whitespace()
-            OpenTagV2("td")
+            OpenTag("td")
             upToNextTag
-            CloseTagV2("td")
+            CloseTag("td")
             Whitespace()
         }
         let allFieldsParser = Parse { date, mark, type, teacher, note in
@@ -49,13 +49,13 @@ public struct StudySheetActivitiesParser: Parser {
 
         let rowsParser = Many {
             Whitespace()
-            OpenTagV2("tr")
+            OpenTag("tr")
             Parse {
                 Whitespace()
                 allFieldsParser
                 Whitespace()
             }
-            CloseTagV2("tr")
+            CloseTag("tr")
             Whitespace()
         }
 
