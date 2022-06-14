@@ -27,7 +27,6 @@ func apiHandler(
     case let .campus(route):
         return try await campusHandler(request: request, route: route)
 
-
     case let .groups(route):
         return try await groupsHandler(request: request, route: route)
 
@@ -84,6 +83,6 @@ func groupHandler(
     switch route {
     case .lessons:
         let controller = LessonsController()
-        return try await controller.getGroups(for: uuid, request: request)
+        return try await controller.getLessons(for: uuid, request: request)
     }
 }

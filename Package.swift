@@ -24,7 +24,6 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing", revision: "0.9.2"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.1.0"),
         .package(url: "https://github.com/pointfreeco/vapor-routing", from: "0.1.0"),
-//        .package(url: "https://github.com/google/swift-benchmark", from: "0.1.1"),
     ],
     targets: [
         .target(
