@@ -69,18 +69,18 @@ public struct StudySheetLessonsParser: Parser {
         let idLinkNameParser = Parse { idLink, name in
             IdLinkName(idLink: idLink, name: name)
         } with: {
-            OpenTagV2("td")
-            OpenTagV2("a") {
+            OpenTag("td")
+            OpenTag("a") {
                 Skip { PrefixThrough("=".utf8) }
                 idLinkParser
             }
             upToNextTag
-            CloseTagV2("a")
-            CloseTagV2("td")
+            CloseTag("a")
+            CloseTag("td")
         }
 
         let teacherParser = Parse {
-            OpenTagV2("td")
+            OpenTag("td")
             Many {
                 Prefix { $0 != .init(ascii: "<") && $0 != .init(ascii: ",") }
                     .map { String(Substring($0)) }
@@ -88,7 +88,7 @@ public struct StudySheetLessonsParser: Parser {
                 ",".utf8
                 Whitespace()
             }
-            CloseTagV2("td")
+            CloseTag("td")
         }
 
         let oneRowParser = Parse { trHeader, idLinkName, teachers in
@@ -103,7 +103,7 @@ public struct StudySheetLessonsParser: Parser {
         } with: {
             Whitespace()
             Parse {
-                OpenTagV2("tr") {
+                OpenTag("tr") {
                     trHeaderParser
                 }
                 Whitespace()
@@ -116,7 +116,7 @@ public struct StudySheetLessonsParser: Parser {
                 teacherParser
                 Whitespace()
             }
-            CloseTagV2("tr")
+            CloseTag("tr")
         }
 
 

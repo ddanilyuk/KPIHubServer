@@ -16,25 +16,6 @@ struct OneLineTag: Parser {
         self.tag = tag
     }
 
-    typealias Input = Substring
-    typealias Output = Void
-
-    func parse(_ input: inout Substring) throws -> Void {
-        try Parse {
-            "<\(tag)/>"
-        }
-        .parse(&input)
-    }
-}
-
-struct OneLineTagV2: Parser {
-
-    let tag: String
-
-    init(_ tag: String) {
-        self.tag = tag
-    }
-
     typealias Input = Substring.UTF8View
     typealias Output = Void
 

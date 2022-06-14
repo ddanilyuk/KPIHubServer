@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  GroupParser.swift
 //  
 //
 //  Created by Denys Danyliuk on 27.05.2022.
@@ -8,7 +8,11 @@
 import Foundation
 import Parsing
 
-public struct GroupParser: Parser {
+public struct GroupParser: Parser, Equatable {
+
+    typealias Input = String
+
+    typealias Output = [Group]
 
     public let groupName: String
 
@@ -46,6 +50,10 @@ public struct GroupParser: Parser {
             Skip { Rest() }
         }
         return try parser.parse(input)
+    }
+    
+    static func == (lhs: GroupParser, rhs: GroupParser) -> Bool {
+        return lhs.groupName == rhs.groupName
     }
 
 }

@@ -33,12 +33,12 @@ public struct LessonsParser: Parser {
         // MARK: - Lesson name
 
         let nameParser = Parse {
-            OpenTagV2("a")
+            OpenTag("a")
             upToNextTag.map { String(Substring($0)) }
-            CloseTagV2("a")
+            CloseTag("a")
         }
         let multipleNamesParser = Parse {
-            OpenTagV2("span")
+            OpenTag("span")
             Many {
                 nameParser
             } separator: {
@@ -48,7 +48,7 @@ public struct LessonsParser: Parser {
             } terminator: {
                 Skip { PrefixThrough("</span>".utf8) }
             }
-            OneLineTagV2("br")
+            OneLineTag("br")
         }
 
         // MARK: - Teacher
@@ -61,11 +61,11 @@ public struct LessonsParser: Parser {
             upToNextTag.map { String(Substring($0)) }
         }
         let teacherParser = Parse(Teacher.init) {
-            OpenTagV2("a") {
+            OpenTag("a") {
                 teacherFullNameParser
             }
             teacherShortNameParser
-            CloseTagV2("a")
+            CloseTag("a")
         }
         let multipleTeachersParser = Parse {
             Optionally {
@@ -77,15 +77,15 @@ public struct LessonsParser: Parser {
                     Peek { "<a".utf8 }
                 }
             }
-            OneLineTagV2("br")
+            OneLineTag("br")
         }
 
         // MARK: - Location
 
         let locationWithLinkParser = Parse {
-            OpenTagV2("a")
+            OpenTag("a")
             upToNextTag.map { String(Substring($0)) }
-            CloseTagV2("a")
+            CloseTag("a")
         }
         let locationPlainTextParser = Parse {
             Whitespace()
@@ -109,7 +109,7 @@ public struct LessonsParser: Parser {
         // MARK: - Lesson
 
         let lessonCellParser = Parse {
-            OpenTagV2("td")
+            OpenTag("td")
             Optionally {
                 Parse(RawLesson.init) {
                     multipleNamesParser
@@ -117,28 +117,28 @@ public struct LessonsParser: Parser {
                     multipleLocationParser
                 }
             }
-            CloseTagV2("td")
+            CloseTag("td")
         }
 
         // MARK: - Row
 
         /// Cell with pair number and time
         let skipFirstCell = Parse {
-            OpenTagV2("td")
+            OpenTag("td")
             Skip { PrefixThrough("</td>".utf8) }
         }
 
         let rowParser = Parse {
             Parse {
                 Whitespace()
-                OpenTagV2("tr")
+                OpenTag("tr")
                 Whitespace()
             }
             skipFirstCell
             Many(6, element: { lessonCellParser })
             Parse {
                 Whitespace()
-                CloseTagV2("tr")
+                CloseTag("tr")
                 Whitespace()
             }
         }
@@ -214,4 +214,56 @@ public struct LessonsParser: Parser {
         return try fullParser.parse(input)
     }
 
+}
+
+
+public func parse(_ input: inout String) throws -> [Lesson] {
+
+    let upToNextTag = PrefixUpTo("<".utf8)
+    let quotedField = Parse { ... }
+
+    // MARK: - Lesson name
+
+    let nameParser = Parse { ... }
+    let multipleNamesParser = Parse { ... }
+
+    // MARK: - Teacher
+
+    let teacherFullNameParser = Parse { ... }
+    let teacherShortNameParser = Parse { ... }
+    let teacherParser = Parse(Teacher.init) { ... }
+    let multipleTeachersParser = Parse { ... }
+
+    // MARK: - Location
+
+    let locationWithLinkParser = Parse { ... }
+    let locationPlainTextParser = Parse { ... }
+    let multipleLocationParser = Parse { ... }
+
+    // MARK: - Lesson
+
+    let lessonCellParser = Parse { ... }
+
+    // MARK: - Row
+
+    /// Cell with pair number and time
+    let skipFirstCell = Parse { ... }
+
+    let rowParser = Parse { ... }
+
+    // MARK: - Table
+
+    let skipTableHeader = Parse { ... }
+
+    let firstTable = Parse { ... }
+        .replaceError( ... )
+
+    let secondTable = Parse { ... }
+        .replaceError( ... )
+
+    let allTables = Parse { ... } with: { ... }
+
+    let fullParser = allTables.map { ... }
+    
+    return try fullParser.parse(input)
 }
