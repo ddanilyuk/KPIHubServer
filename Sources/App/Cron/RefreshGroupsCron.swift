@@ -18,7 +18,7 @@ public struct RefreshGroupsCron: AsyncVaporCronSchedulable {
 
     public static func task(on application: Application) async throws -> Void {
         application.logger.info("\(Self.self) is running...")
-        let groupsController = GroupsController()
+        let groupsController = RozkladController()
         let groups = try await groupsController.getNewGroups(
             client: application.client,
             logger: application.logger

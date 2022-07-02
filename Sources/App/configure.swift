@@ -7,6 +7,9 @@ import VaporCron
 
 public func configure(_ app: Application) throws {
 
+    app.http.server.configuration.hostname = "0.0.0.0"
+    app.http.server.configuration.port = 8080
+
     app.logger.notice("env \(app.environment)")
     app.logger.notice("host \(Environment.get("DATABASE_HOST") ?? "no value")")
     app.logger.notice("port \(Environment.get("DATABASE_PORT") ?? "no value")")
