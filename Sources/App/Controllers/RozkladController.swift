@@ -1,5 +1,5 @@
 //
-//  GroupsController.swift
+//  RozkladController.swift
 //  
 //
 //  Created by Denys Danyliuk on 20.05.2022.
@@ -12,7 +12,8 @@ import FluentPostgresDriver
 import Foundation
 import Routes
 
-final class GroupsController {
+/// This client is base on parsing groups and lessons from rozklad.kpi.ua
+final class RozkladController {
 
     static let ukrainianAlphabet: [String] = [
         "а", "б", "в", "г", "д", "е", "є", "ж", "з", "и", "і",
@@ -59,7 +60,7 @@ final class GroupsController {
         var numberOfParsedGroups = 0
 
         // Receiving groups names from first endpoint
-        let groupsNames = try await GroupsController.ukrainianAlphabet
+        let groupsNames = try await RozkladController.ukrainianAlphabet
             .asyncMap { letter -> AllGroupsClientResponse in
                 let response: ClientResponse = try await client.post(
                     "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx/GetGroups",
@@ -99,6 +100,15 @@ final class GroupsController {
             }
             .flatMap { $0 }
             .uniqued()
+    }
+
+    func getLessons(for groupUUID: UUID, request: Request) async throws -> LessonsResponse {
+        let response = try await request.client.get(
+            "http://rozklad.kpi.ua/Schedules/ViewSchedule.aspx?g=\(groupUUID.uuidString)"
+        )
+        let html = try (response.body).htmlString(encoding: .utf8)
+        let lessons = try LessonsParser().parse(html)
+        return LessonsResponse(id: groupUUID, lessons: lessons)
     }
 
     func scheduleGroupSelectionParameters(with groupName: String) -> String {

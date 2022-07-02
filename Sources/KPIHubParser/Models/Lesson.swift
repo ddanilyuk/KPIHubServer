@@ -39,8 +39,9 @@ public struct Lesson: Equatable {
     }
 
     public let names: [String]
-    public let teachers: [Teacher]?
+    public let teachers: [String]?
     public let locations: [String]?
+    public let type: String
 
     public let position: Position
     public let day: Day
@@ -55,6 +56,7 @@ public struct Lesson: Equatable {
         self.names = rawLesson.names
         self.teachers = rawLesson.teachers
         self.locations = rawLesson.locations
+        self.type = rawLesson.type
         self.day = day
         self.week = week
         self.position = position

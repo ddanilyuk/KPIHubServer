@@ -60,15 +60,15 @@ func groupsHandler(
 ) async throws -> AsyncResponseEncodable {
     switch route {
     case .all:
-        let controller = GroupsController()
+        let controller = RozkladControllerV2()
         return try await controller.allGroups(request: request)
 
     case let .search(searchQuery):
-        let controller = GroupsController()
+        let controller = RozkladControllerV2()
         return try await controller.search(request: request, searchQuery: searchQuery)
 
     case .forceRefresh:
-        let controller = GroupsController()
+        let controller = RozkladController()
         return try await controller.forceRefresh(request: request)
     }
 }
@@ -82,7 +82,7 @@ func groupHandler(
 ) async throws -> AsyncResponseEncodable {
     switch route {
     case .lessons:
-        let controller = LessonsController()
+        let controller = RozkladControllerV2()
         return try await controller.getLessons(for: uuid, request: request)
     }
 }
