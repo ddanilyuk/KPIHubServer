@@ -1,6 +1,9 @@
 # KPI Hub Server
 
-Vapor server for [KPIHub iOS app](https://github.com/ddanilyuk/KPIHubIOS/) which can parse [rozklad.kpi.ua](http://rozklad.kpi.ua) and [campus.kpi.ua](campus.kpi.ua).
+Vapor server for [KPIHub iOS app](https://github.com/ddanilyuk/KPIHubIOS/) which is used for:
+
+1. Parsing [rozklad.kpi.ua](http://rozklad.kpi.ua) or API requests to [schedule.kpi.ua](https://schedule.kpi.ua/api/)
+2. Parsing [campus.kpi.ua](campus.kpi.ua).
 
 
 ## Hosing: 
@@ -13,8 +16,8 @@ Domain: **kpihub.xyz**
 - [Vapor](https://github.com/vapor/vapor)
 - [vapor-routing](https://github.com/pointfreeco/vapor-routing) (by poinfree)
 - fluent-postgres (for storing groups)
-- docker, docker-compose
-- Github actions, Secrets
+- Docker, docker-compose
+- Github Actions, Secrets
 
 ## Requests
 
@@ -34,7 +37,7 @@ Domain: **kpihub.xyz**
 
 ### Campus
 
-#### Student user info:
+#### Student info:
 
 **GET** `/api/campus/userInfo?username=$(username)&password=$(password)`
 
@@ -48,12 +51,12 @@ The main thing that the server does is parisng.
 
 ### RozkladV2
 
-Looks like [rozklad.kpi.ua](http://rozklad.kpi.ua/) is migrating to new site [schedule.kpi.ua](https://github.com/kpi-ua/schedule.kpi.ua).
-And as [rozklad.kpi.ua](http://rozklad.kpi.ua/) is not reacheable now, I created a wrapper RozkladV2 above new API. 
+Looks like [rozklad.kpi.ua](http://rozklad.kpi.ua/) is migrating to new site [schedule.kpi.ua](https://schedule.kpi.ua/api/).
+As [rozklad.kpi.ua](http://rozklad.kpi.ua/) is not reacheable now, I created a wrapper RozkladV2 above new API. 
 
 ### RozkladV1
 
-Every 28th on every mounth crone script updates group list. This is a rather labor-intensive task, and if you do it more often, the [rozklad.kpi.ua](http://rozklad.kpi.ua/) protection will work and the IP will be banned.
+Every 28th on every mounth crone script updates group list. This is a rather labor-intensive task, and if you do it too often, the [rozklad.kpi.ua](http://rozklad.kpi.ua/) will ban your IP.
 
 When user request lessons for particular group, server goes to [rozklad.kpi.ua](http://rozklad.kpi.ua/) and parse lessons live.
 
@@ -63,23 +66,25 @@ Every request for campus-related staff need to be provieded with campus credenti
 
 Server do not store any credential information. So that’s why u need to pass credentials for every request.
 
-Server use this data for receiving Bearea token and cookies. 
+Server use this data for receiving Bearer token and cookies. 
 
 ### Routing
 
-At the heart of the approach for routing was taken `vapor-routing` by pointfree. This library gives an opportunity to move routing-related code to separate library and then use it by iOS application.
+At the heart of the approach for routing was taken `vapor-routing` by pointfree. This library gives an opportunity to move routing-related code to separate library and use it in iOS application and server.
 
 ### Parsing
 
-This server use `swift-parsing` library for parsing HTML pages. There are a couple of parsers.
+This server use `swift-parsing` library for parsing HTML pages. 
+
+Parsers:
 
 - `GroupParser`
     
-    Used for receiving group id’s from html pages
+    Receive groups IDs from HTML pages
     
 - `LessonsParser`
     
-    Extracting lessons from two schedule tables
+    Extract lessons from two schedule tables (first and second weeks)
     
 - `StudySheetActivitiesParser`
     
@@ -87,4 +92,4 @@ This server use `swift-parsing` library for parsing HTML pages. There are a coup
     
 - `StudySheetLessonsParser`
     
-    Parse grades of a Specific Subject
+    Parse marks from a specific subject table
