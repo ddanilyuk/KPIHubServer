@@ -60,11 +60,11 @@ func groupsHandler(
 ) async throws -> AsyncResponseEncodable {
     switch route {
     case .all:
-        let controller = RozkladControllerV2()
+        let controller = RozkladController()
         return try await controller.allGroups(request: request)
 
     case let .search(searchQuery):
-        let controller = RozkladControllerV2()
+        let controller = RozkladController()
         return try await controller.search(request: request, searchQuery: searchQuery)
 
     case .forceRefresh:
@@ -82,7 +82,7 @@ func groupHandler(
 ) async throws -> AsyncResponseEncodable {
     switch route {
     case .lessons:
-        let controller = RozkladControllerV2()
+        let controller = RozkladController()
         return try await controller.getLessons(for: uuid, request: request)
     }
 }

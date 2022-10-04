@@ -63,7 +63,7 @@ final class RozkladController {
         let groupsNames = try await RozkladController.ukrainianAlphabet
             .asyncMap { letter -> AllGroupsClientResponse in
                 let response: ClientResponse = try await client.post(
-                    "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx/GetGroups",
+                    "http://epi.kpi.ua/Schedules/ScheduleGroupSelection.aspx/GetGroups",
                     beforeSend: { clientRequest in
                         let content = AllGroupClientRequest(prefixText: letter, count: 100)
                         try clientRequest.content.encode(content)
@@ -79,7 +79,7 @@ final class RozkladController {
         return try await groupsNames
             .asyncMap { groupName -> [GroupModel] in
                 let response: ClientResponse = try await client.post(
-                    "http://rozklad.kpi.ua/Schedules/ScheduleGroupSelection.aspx",
+                    "http://epi.kpi.ua/Schedules/ScheduleGroupSelection.aspx",
                     beforeSend: { clientRequest in
                         clientRequest.headers.add(
                             name: .contentType,
@@ -104,7 +104,7 @@ final class RozkladController {
 
     func getLessons(for groupUUID: UUID, request: Request) async throws -> LessonsResponse {
         let response = try await request.client.get(
-            "http://rozklad.kpi.ua/Schedules/ViewSchedule.aspx?g=\(groupUUID.uuidString)"
+            "http://epi.kpi.ua/Schedules/ViewSchedule.aspx?g=\(groupUUID.uuidString)"
         )
         let html = try (response.body).htmlString(encoding: .utf8)
         let lessons = try LessonsParser().parse(html)
