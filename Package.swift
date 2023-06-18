@@ -22,7 +22,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/MihaelIsaev/VaporCron.git", from:"2.0.0"),
-        .package(url: "https://github.com/pointfreeco/swift-parsing", revision: "0.9.2"),
+        .package(url: "https://github.com/pointfreeco/swift-parsing", from: "0.11.0"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.1.0"),
         .package(url: "https://github.com/pointfreeco/vapor-routing", from: "0.1.0"),
     ],
